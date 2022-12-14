@@ -387,11 +387,33 @@ class AVLTreeList(object):
         @returns: the absolute value of the difference between the height of the AVL trees joined
         """
         #O(log n) -> O(h2-h1+1) ?
+        #check if work on lst.size==1 if not, just add as last element and rotate
         def concat(self, lst):
                 
+                if(self.size==0):
+                        self=lst
+                        lst=AVLTreeList()#check what happens to self and lst
+                        return self.height
+                if(lst.size==0):
+                        return self.height
+                
+                hdiff=abs(self.root.height+1-lst.root.height)
+                
+                if(lst.size==1 or self.size==1): #we will sometimes be able to do the join on O(1) like so 
+                        if(lst.size==1):
+                                self.insert(self.size,lst.root.value)
+                                self.max=lst.root.value
+                                lst=AVLTreeList()#check what happens to self and lst
+                                return hdiff
+                        if(self.size==1):
+                                lst.insert(0,self.root.value)
+                                lst.min=self.root.value
+                                self=lst
+                                lst=AVLTreeList()#check what happens to self and lst
+                                return hdiff
+                        
                 x=self.max.value
                 self.delete(self.length()-1)
-                hdiff=abs(self.root.height+1-lst.root.height)
                 if(hdiff<=1):
                         x.setLeft(self.root)
                         x.setRight(lst.root)
@@ -400,14 +422,19 @@ class AVLTreeList(object):
                         self.size=self.size+1+lst.size
                         lst=AVLTreeList()#check what happens to self and lst
                         
+                        
                 if(self.height>lst.height):
                         self.joinSmaller(x,lst)
                         self.CheckInsertion(x,True)
-                        #do rotations needed 
+                        #do rotations needed
+                       
+                        
                 else:
                         self.joinBigger(x,lst)
                         self.CheckInsertion(x,True)
-                        #do rotations needed 
+                        #do rotations needed
+                        
+                return hdiff
 
         """searches for a *value* in the list
 
