@@ -360,25 +360,14 @@ class AVLTreeList(object):
         #O(n)
         def permutation(self):
                 perm=self.listToArray()#O(n)
-                random.shuffle(perm)#O(n)
+                self.ShuffleList(perm)#O(n)
                 shuffeldTree=AVLTreeList()
-                shuffeldTree.size=self.size
-                shuffeldTree.CopyTree(self.root,AVLNode(None))#O(n)
-                shuffeldTree.min=perm[0]
-                shuffeldTree.max=perm[len(perm)-1]
-                shuffeldTree.overWrite(shuffeldTree.root,perm,[0])#O(n)
+                i=0
+                while(i<len(perm)):
+                        shuffeldTree.insert(0,perm[i])#insertFirst is O(1), we do it n times so overall O(n)
+                        i=i+1
                 return shuffeldTree
-        
-        #O(n)
-        def overWrite(tree,node,arr,i):
-                if(node is None or not node.isRealNode() ):
-                        return
-                tree.overWrite(node.getLeft(),arr,i)
-                node.value=arr[i[0]]
-                i[0]=i[0]+1
-                tree.overWrite(node.getRight(),arr,i)
                 
-
         """concatenates lst to self
 
         @type lst: AVLTreeList
@@ -589,17 +578,19 @@ class AVLTreeList(object):
                 node.size = node.left.size + node.right.size + 1
                 if(node.parent!=None):
                         return self.FixBalance(node.parent)
+
         #O(n)
-        def CopyTree(self,node,parent):
-                if(node is None or node.value==None):
-                        return None 
-                CopyNode=AVLNode(node.value)
-                CopyNode.parent=AVLNode(parent.value)
-                CopyNode.height = node.height
-                CopyNode.size=node.size
-                CopyNode.left = AVLNode(self.CopyTree(node.left,node))
-                CopyNode.right = AVLNode(self.CopyTree(node.right,node))
-                return CopyNode
+        def ShuffleList(self,lst):
+              indexL=len(lst)-1
+
+              while indexL > 0:
+                  randomIndex = random.randint(0, indexL)
+                  lst[indexL],lst[randomIndex]=lst[randomIndex],lst[indexL]
+                  indexL = indexL- 1
+
+              return lst
+
+        
         #O(log n)
         def findFirstH(self,h):
                 node=self.root
@@ -629,6 +620,11 @@ class AVLTreeList(object):
                 T2=AVLTreeList()#check what happens to self and lst
                 
                 
+                
 t=AVLTreeList()
 for i in range(10):
         t.insert(0,(str)(i))
+        
+
+        
+
