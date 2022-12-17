@@ -8,7 +8,6 @@
 #delete printtree and reper
 #delete auto generated tree
 #check to see that sizes and heights stay updated in big tree
-#fix CopyTree function
 #try to insert a lot of elements to tree and confirm no problems
 #after delete check concat
 #write time complexity for all
@@ -150,9 +149,9 @@ class AVLNode(object):
         """
         #O(1)
         def isRealNode(self):
-                if (self.value!=None):
-                        return True
-                return False
+                if (self.value==None):
+                        return False
+                return True
         
         #O(1)
         def getbalance(self):
@@ -161,6 +160,8 @@ class AVLNode(object):
                 lh = self.left.height
                 rh = self.right.height
                 return lh-rh
+        def getSize(self):
+                return self.size
         
                 
 
@@ -224,8 +225,8 @@ class AVLTreeList(object):
         """
         #O(log n)
         def insert(self, i, val):
-                Vnode1=AVLNode(None)
-                Vnode2=AVLNode(None)
+                Vnode1=AVLNode(None)#create virtual Node
+                Vnode2=AVLNode(None)#create virtual Node
                 Node=AVLNode(val)
                 if(self.empty()): #insert root when empty tree
                         self.root=Node
@@ -276,7 +277,7 @@ class AVLTreeList(object):
                                         
                 self.FixBalance(Node)
                 x=self.CheckInsertion(Node)
-                return [x]
+                return x
                 
 
 
@@ -456,7 +457,7 @@ class AVLTreeList(object):
         #O(log n)
         def PredNode(self,Node):
                 pred=Node.getLeft()
-                while(pred.getRight().isRealNode()):
+                while(pred.right.value!=None):
                         pred=pred.getRight()
                 return pred
         #O ?
