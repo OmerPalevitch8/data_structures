@@ -59,7 +59,7 @@ class AVLNode(object):
         """
         #O(1)
         def getRight(self):
-                if(self.right is None or not self.right.isRealNode()):
+                if(self.right is None or self.right.value==None):
                         return None
                 return self.right
                 
@@ -256,7 +256,7 @@ class AVLTreeList(object):
                         self.size+=1
                 else:
                         ParentNode=self.TreeSelect(i+1)#TreeSelect to find location
-                        if(ParentNode.getLeft().value==None): #dosent have left son
+                        if(ParentNode.left.value==None): #dosent have left son
                                 ParentNode.setLeft(Node)
                                 Node.setParent(ParentNode)
                                 Node.setLeft(Vnode1)
@@ -330,9 +330,9 @@ class AVLTreeList(object):
         def inOrder(self,node,arr):
                 if(node is None or not node.isRealNode()):
                         return
-                self.inOrder(node.getLeft(),arr)
+                self.inOrder(node.left,arr)
                 arr.append(node.value)
-                self.inOrder(node.getRight(),arr)
+                self.inOrder(node.right,arr)
                 
 
         """returns the size of the list 
@@ -456,16 +456,17 @@ class AVLTreeList(object):
         """
         #O(log n)
         def PredNode(self,Node):
-                pred=Node.getLeft()
+                pred=Node.left
                 while(pred.right.value!=None):
-                        pred=pred.getRight()
+                        pred=pred.right
                 return pred
         #O ?
         def TreeSelect(self,k):
+                
                 return self.TreeSelectRec(self.root,k)
         
         def TreeSelectRec(self,x,k):
-                r=x.getLeft().size+1
+                r=x.left.size+1
                 if(k==r):
                         return x
                 if(k<r):
@@ -534,7 +535,7 @@ class AVLTreeList(object):
                A.setParent(B)
                if(temp!=None):
                        B.setParent(temp)
-                       if(temp.getRight()==A):
+                       if(temp.right==A):
                                temp.setRight(B)
                        else:
                                temp.setLeft(B)
