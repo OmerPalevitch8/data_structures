@@ -235,7 +235,7 @@ class AVLTreeList(object):
                         self.min=Node
                         self.max=Node
                         self.size+=1
-                        return [0]
+                        return 0
                 
                 Node=AVLNode(val)
                 if(i==self.size): #insertLast  O(1)
