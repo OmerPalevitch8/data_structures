@@ -29,8 +29,8 @@ class AVLNode(object):
                 self.left = None
                 self.right = None
                 self.parent = None
-                self.height = 0 # Balance factor
-                if(value==None):
+                self.height = 0 
+                if(value==None):#virtual node
                         self.height=-1
                         self.size=0
                 else:
@@ -46,8 +46,6 @@ class AVLNode(object):
         """
         #O(1)
         def getLeft(self):
-                if(self.left is None or not self.left.isRealNode()):
-                        return None
                 return self.left
                 
 
@@ -59,8 +57,6 @@ class AVLNode(object):
         """
         #O(1)
         def getRight(self):
-                if(self.right is None or self.right.value==None):
-                        return None
                 return self.right
                 
 
@@ -71,9 +67,7 @@ class AVLNode(object):
         """
         #O(1)
         def getParent(self):
-                if(self.parent!=None):
-                        return self.parent
-                return None
+                return self.parent
 
         """return the value
 
@@ -82,8 +76,6 @@ class AVLNode(object):
         """
         #O(1)
         def getValue(self):
-                if(self.value==None):
-                        return None
                 return self.value
 
         """returns the height
@@ -93,8 +85,6 @@ class AVLNode(object):
         """
         #O(1)
         def getHeight(self):
-                if(self.value==None):
-                        return -1
                 return self.height
 
         """sets left child
@@ -149,19 +139,21 @@ class AVLNode(object):
         """
         #O(1)
         def isRealNode(self):
-                if (self.value==None):
+                if (self.height==-1):
                         return False
                 return True
         
         #O(1)
         def getbalance(self):
-                if(self.value==None):
-                        return -1
                 lh = self.left.height
                 rh = self.right.height
                 return lh-rh
+        #O(1)
         def getSize(self):
                 return self.size
+        #O(1)
+        def setSize(self,s):
+                self.size=s
         
                 
 
@@ -197,7 +189,7 @@ class AVLTreeList(object):
         """
         #O(1)
         def empty(self):
-                if(self.root==None or self.size==0):
+                if(self.root==None):
                         return True
                 return False
 
@@ -227,57 +219,46 @@ class AVLTreeList(object):
         def insert(self, i, val):
                 Vnode1=AVLNode(None)#create virtual Node
                 Vnode2=AVLNode(None)#create virtual Node
-                Node=AVLNode(val)
+                Node=AVLNode(val)#create Node to insert
+                Node.setLeft(Vnode1)
+                Node.setRight(Vnode2)
+                Vnode1.setParent(Node)
+                Vnode2.setParent(Node)
+                
                 if(self.empty()): #insert root when empty tree
                         self.root=Node
-                        self.root.setRight(Vnode1)
-                        self.root.setLeft(Vnode2)
                         self.min=Node
                         self.max=Node
-                        self.size+=1
+                        self.size=1
                         return 0
                 
-                Node=AVLNode(val)
-                if(i==self.size): #insertLast  O(1)
-                        Max=self.max
-                        Max.setRight(Node)
-                        Node.setParent(Max)
-                        Node.setLeft(Vnode1)
-                        Node.setRight(Vnode2)
-                        self.max=Node
-                        self.size+=1
-                elif i==0: #insertFirst O(1)
-                        Min=self.min
-                        Min.setLeft(Node)
-                        Node.setParent(Min)
-                        Node.setLeft(Vnode1)
-                        Node.setRight(Vnode2)
+                if i==0: #insertFirst O(1)
+                        Parent=self.min
+                        Parent.setLeft(Node)
                         self.min=Node
-                        self.size+=1
+                        Node.setParent(Parent) 
+                        
+                elif(i==self.size): #insertLast
+                        Parent=self.max
+                        Parent.setRight(Node)
+                        self.max=Node
+                        Node.setParent(Parent) 
+                               
                 else:
-                        ParentNode=self.TreeSelect(i+1)#TreeSelect to find location
-                        if(ParentNode.left.value==None): #dosent have left son
-                                ParentNode.setLeft(Node)
-                                Node.setParent(ParentNode)
-                                Node.setLeft(Vnode1)
-                                Node.setRight(Vnode2)
-                                Vnode1.setParent(Node)
-                                Vnode2.setParent(Node)
-                                self.size+=1
+                        Parent=self.TreeSelect(i+1)#TreeSelect to find location
+                        if(not Parent.left.isRealNode()): #dosent have left son
+                                Parent.setLeft(Node)
+                                Node.setParent(Parent) 
                                 
                         else:
-                                predNode=self.PredNode(ParentNode)
-                                predNode.setRight(Node)
-                                Node.setParent(predNode)
-                                Node.setLeft(Vnode1)
-                                Node.setRight(Vnode2)
-                                Vnode1.setParent(Node)
-                                Vnode2.setParent(Node)
-                                self.size+=1
-                                        
-                self.FixBalance(Node)
-                x=self.CheckInsertion(Node)
-                return x
+                                Parent=self.PredNode(Parent)
+                                Parent.setRight(Node)
+                                Node.setParent(Parent) 
+                                               
+                self.FixHS(Node)
+                rotations=self.CheckInsertion(Node)
+                self.size+=1
+                return rotations
                 
 
 
@@ -364,9 +345,10 @@ class AVLTreeList(object):
                 self.ShuffleList(perm)#O(n)
                 shuffeldTree=AVLTreeList()
                 i=0
-                while(i<len(perm)):
-                        shuffeldTree.insert(0,perm[i])#insertFirst is O(1), we do it n times so overall O(n)
-                        i=i+1
+                shuffeldTree.root=self.buildTreeFromList(perm,0,len(perm)-1)
+                shuffeldTree.min=AVLNode(perm[0])
+                shuffeldTree.max=AVLNode(perm[len(perm)-1])
+                shuffeldTree.size=shuffeldTree.root.size
                 return shuffeldTree
                 
         """concatenates lst to self
@@ -445,22 +427,23 @@ class AVLTreeList(object):
         """
         #O(1)
         def getRoot(self):
-                if(self.size==0 or self.root==None):
-                        return None
-                
                 return self.root
         
-        """ Find Predecessor
-        @rtype: AVLNode
-        @returns:the Node that precede the input Node
-        """
+        ## Find Predecessor
         #O(log n)
         def PredNode(self,Node):
-                pred=Node.left
-                while(pred.right.value!=None):
-                        pred=pred.right
-                return pred
-        #O ?
+                if(Node.left.isRealNode()):
+                        pred=Node.left
+                        while(pred.right.isRealNode()):
+                                pred=pred.right
+                        return pred
+                Parent = Node.parent
+                while Parent.isRealNode() and Node is Parent.left:
+                        Node = Parent
+                        Parent = Node.parent
+                return Parent
+
+        #O O(log n)
         def TreeSelect(self,k):
                 
                 return self.TreeSelectRec(self.root,k)
@@ -475,43 +458,40 @@ class AVLTreeList(object):
                         return self.TreeSelectRec(x.right,k-r)
 
         #O(log n)
-        def CheckInsertion(self,curr,join=False):
-                if curr==None:
-                        if(not join):
-                                return 0
-                        return
-                bal=curr.getbalance()
-                if bal == -2:
-                        if curr.right.getbalance() <=0:
-                                self.leftRotate(curr)
-                                self.FixBalance(curr)
-                                if(not join):
-                                        return 1
+        # as we check if rotations are needed, we will fix the parameters of the nodes
+        def CheckInsertion(self,curr):
+                rotations = 0
+                while curr is not None and curr.isRealNode():
+                        self.FixHS(curr)# fix height and size of the nodes
+                        bal=curr.getbalance()
+                        
+                        if bal == -2:
+                                if curr.right.getbalance() <=0:
+                                        self.leftRotate(curr)
+                                        self.FixHS(curr)
+                                        rotations+= 1
                                 
-                        else:
-                                self.rightRotate(curr.right)
-                                self.FixBalance(curr.right)
-                                self.leftRotate(curr)
-                                self.FixBalance(curr)
-                                if(not join):
-                                        return 2
-                        if(not join):
+                                else:
+                                        self.rightRotate(curr.right)
+                                        self.FixHS(curr.right)
+                                        self.leftRotate(curr)
+                                        self.FixHS(curr)
+                                        rotations+= 2
+                        
                                 return 1
-                elif (bal == +2):
-                        if curr.left.getbalance() > -1: 
-                                self.rightRotate(curr)
-                                self.FixBalance(curr)
-                                if(not join):
-                                        return 1
-                        else:
-                                self.leftRotate(curr.left)
-                                self.FixBalance(curr.left)
-                                self.rightRotate(curr)
-                                self.FixBalance(curr)
-                                if(not join):
-                                        return 2
-                return self.CheckInsertion(curr.parent)        
-                
+                        elif (bal == +2):
+                                if curr.left.getbalance() > -1: 
+                                        self.rightRotate(curr)
+                                        self.FixHS(curr)
+                                        rotations+= 1
+                                else:
+                                        self.leftRotate(curr.left)
+                                        self.FixHS(curr.left)
+                                        self.rightRotate(curr)
+                                        self.FixHS(curr)
+                                        rotations+= 2
+                        curr = curr.parent
+                return rotations
 
         
   #             left Rotate:                 
@@ -542,6 +522,9 @@ class AVLTreeList(object):
                else:
                        self.root=B
                        B.parent=None
+                
+               self.FixHS(A)
+               self.FixHS(B)
 
                                 
   #             Right Rotate:                 
@@ -573,13 +556,13 @@ class AVLTreeList(object):
                else:
                        self.root=A
                        A.parent=None
+               self.FixHS(B)
+               self.FixHS(A)
                        
         #O(log n)
-        def FixBalance(self,node):
+        def FixHS(self,node):
                 node.height=1+max(node.left.height,node.right.height)
                 node.size = node.left.size + node.right.size + 1
-                if(node.parent!=None):
-                        return self.FixBalance(node.parent)
 
         #O(n)
         def ShuffleList(self,lst):
@@ -620,6 +603,33 @@ class AVLTreeList(object):
                 x.setParent(Connect.parent)
                 Connect.parent=x
                 T2=AVLTreeList()#check what happens to self and lst
+
+        #O(n)
+        #we will build as we saw in the rec
+        def buildTreeFromList(self,lst, left, right):
+	# if right < left then we return a virtual node
+                if right < left:
+                        return AVLNode(None)
+
+	# create a node from the center of the list so that the tree will be most balanced
+                mid = (left + right) // 2
+                node = AVLNode(lst[mid])
+
+	# build left subtree of node
+                node.setLeft(self.buildTreeFromList(lst, left, mid - 1))
+
+	# build right subtree of node
+                node.setRight(self.buildTreeFromList(lst, mid + 1, right))
+
+	# update parameters of node
+                self.FixHS(node)
+
+	# setting node as parent for left and right children
+                if node.getRight().isRealNode():
+                        node.getRight().setParent(node)
+                if node.getLeft().isRealNode():
+                        node.getLeft().setParent(node)
+                return node
                 
                 
                 
@@ -628,5 +638,9 @@ for i in range(10):
         t.insert(0,(str)(i))
         
 
-        
+
+
+
+
+
 
