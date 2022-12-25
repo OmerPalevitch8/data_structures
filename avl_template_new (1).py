@@ -10,9 +10,8 @@
 #check to see that sizes and heights stay updated in big tree
 #try to insert a lot of elements to tree and confirm no problems
 #after delete check concat
-#write time complexity for all
 #arrange where each help function is
-
+#finish build Tree
 
 import random ##check if allowed
 from printree import *
@@ -606,30 +605,8 @@ class AVLTreeList(object):
 
         #O(n)
         #we will build as we saw in the rec
-        def buildTreeFromList(self,lst, left, right):
-	# if right < left then we return a virtual node
-                if right < left:
-                        return AVLNode(None)
-
-	# create a node from the center of the list so that the tree will be most balanced
-                mid = (left + right) // 2
-                node = AVLNode(lst[mid])
-
-	# build left subtree of node
-                node.setLeft(self.buildTreeFromList(lst, left, mid - 1))
-
-	# build right subtree of node
-                node.setRight(self.buildTreeFromList(lst, mid + 1, right))
-
-	# update parameters of node
-                self.FixHS(node)
-
-	# setting node as parent for left and right children
-                if node.getRight().isRealNode():
-                        node.getRight().setParent(node)
-                if node.getLeft().isRealNode():
-                        node.getLeft().setParent(node)
-                return node
+        def BuildTree(self,lst, left, right):
+                pass
                 
                 
                 
