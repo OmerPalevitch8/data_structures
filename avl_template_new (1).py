@@ -458,33 +458,35 @@ class AVLTreeList(object):
 
         #O(log n)
         # as we check if rotations are needed, we will fix the parameters of the nodes
+        
         def CheckInsertion(self,curr):
                 rotations = 0
                 while curr is not None and curr.isRealNode():
                         self.FixHS(curr)# fix height and size of the nodes
                         bal=curr.getbalance()
                         
-                        if bal == -2:
-                                if curr.right.getbalance() <=0:
+                        if bal == -2:#check if the node has "criminal" balance
+                                
+                                if curr.right.getbalance() <=0: #case 1:left rotate
                                         self.leftRotate(curr)
                                         self.FixHS(curr)
                                         rotations+= 1
                                 
-                                else:
+                                else: #case 2: RL rotate
                                         self.rightRotate(curr.right)
                                         self.FixHS(curr.right)
                                         self.leftRotate(curr)
                                         self.FixHS(curr)
                                         rotations+= 2
                         
-                                return 1
+                                
                         elif (bal == +2):
-                                if curr.left.getbalance() > -1: 
+                                if curr.left.getbalance() > -1: #case 3: right rotate 
                                         self.rightRotate(curr)
                                         self.FixHS(curr)
                                         rotations+= 1
                                 else:
-                                        self.leftRotate(curr.left)
+                                        self.leftRotate(curr.left) #case 4: left right rotate
                                         self.FixHS(curr.left)
                                         self.rightRotate(curr)
                                         self.FixHS(curr)
