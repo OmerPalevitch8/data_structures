@@ -28,7 +28,8 @@ class AVLNode(object):
                 self.left = None
                 self.right = None
                 self.parent = None
-                self.height = 0 
+                self.height = 0
+                self.size=1
                 if(value==None):#virtual node
                         self.height=-1
                         self.size=0
@@ -217,7 +218,11 @@ class AVLTreeList(object):
         #O(log n)
         def insert(self, i, val):
                 Vnode1=AVLNode(None)#create virtual Node
+                Vnode1.height=-1
+                Vnode1.size=0
                 Vnode2=AVLNode(None)#create virtual Node
+                Vnode1.height=-1
+                Vnode1.size=0
                 Node=AVLNode(val)#create Node to insert
                 Node.setLeft(Vnode1)
                 Node.setRight(Vnode2)
@@ -340,6 +345,8 @@ class AVLTreeList(object):
         """
         #O(n)
         def permutation(self):
+                if(self.isEmpty()):
+                        return self
                 perm=self.listToArray()#O(n)
                 self.ShuffleList(perm)#O(n)
                 shuffeldTree=AVLTreeList()
