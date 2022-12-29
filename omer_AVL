@@ -194,19 +194,12 @@ class AVLNode(object):
         else:
             return False
 
-    def replace_node_left(self,node2):
-        node1 = self.left
-        if(node2==None):
-            node1=None
-        else:
-            node1.value = node2.value
+    def replace_to_virtual(self):
+        node= AVLNode(None)
+        node.size=0
+        node.height=-1
+        return node
 
-    def replace_node_right(self,node2):
-        node1 = self.right
-        if (node2 == None):
-            node1 = None
-        else:
-            node1.value = node2.value
 
 
 """
@@ -324,6 +317,11 @@ class AVLTreeList(object):
     @returns: the number of rebalancing operation due to AVL rebalancing
     """
 
+    def help_tree(self,node):
+        self.FixHS(node)
+        rotations = self.CheckInsertion(node)
+        return rotations
+
     # O(nlog n)
     def delete(self, i):
         if ((self.empty()) or ((self.size == 1) & (i == 0))):
@@ -346,19 +344,16 @@ class AVLTreeList(object):
         if ((node.left.isRealNode()==False) & (node.right.isRealNode()==False)):
             if (node.if_node_is_left_child()):
                 parent = node.parent
-                parent.left = None
+                parent.left=node.replace_to_virtual()
             else:
                 parent = node.parent
-                parent.right = None
-            node.parent = None
-            #self.FixHS(parent)
-            #rotations = self.CheckInsertion(parent)
-            return 0
+                parent.right=node.replace_to_virtual()
+            return self.help_tree(parent)
         # only left child
         elif ((node.left.isRealNode()!=False) & (node.right.isRealNode()==False)):
             if(self.root.value==node.value):
-                self.root = node.left
-                node.left=None
+                self.root.value = node.left.value
+                node.left.replace_to_virtual()
             elif (node.if_node_is_left_child()):
                 parent = node.parent
                 parent.left = node.left
@@ -366,16 +361,14 @@ class AVLTreeList(object):
                 parent = node.parent
                 parent.right = node.left
             else:
-                self.root=node.left
+                self.root.value=node.left.value
             node.left.parent = parent
-            #self.FixHS(node.left)
-            #rotations = self.CheckInsertion(node.left)
-            return 0
+            return self.help_tree(parent)
         # only right child
         elif ((node.left.isRealNode()==False) & (node.right.isRealNode()!=False)):
             if (self.root.value == node.value):
-                self.root = node.right
-                node.right = None
+                self.root.value = node.right.value
+                node.right.replace_to_virtual()
             elif (node.if_node_is_left_child()):
                 parent = node.parent
                 parent.left = node.right
@@ -383,11 +376,9 @@ class AVLTreeList(object):
                 parent = node.parent
                 parent.right = node.right
             else:
-                self.root=node.left
-            #node.right.parent = parent
-            #self.FixHS(node.right)
-            #rotations = self.CheckInsertion(node.right)
-            return 0
+                self.root.value=node.left.value
+            node.right.parent = parent
+            return self.help_tree(parent)
         # 2 children
         else:
             # we will replace with succsesor, who is leaf or have right child (left is not possible)
@@ -395,22 +386,21 @@ class AVLTreeList(object):
 
             # sucssesor is a leaf
             if ((succsesor.left.isRealNode()==False) & (succsesor.right.isRealNode()==False)):
+                node.value = succsesor.value
                 if(succsesor.if_node_is_left_child()):
                     parent = succsesor.parent
-                    parent.left = None
+                    parent.left = node.replace_to_virtual()
                 elif(succsesor.if_node_is_right_child()):
                     parent = succsesor.parent
-                    parent.right = None
+                    parent.right= node.replace_to_virtual()
                 else:
-                    self.root=None
+                    self.root.replace_to_virtual()
                 if (node.value == self.root.value):
                     self.root.value = succsesor.value
-                node.value = succsesor.value
-                #self.FixHS(succsesor)
-                #rotations = self.CheckInsertion(node)
-                return 0
+                return self.help_tree(parent)
             # sucssesor have right child
             else:
+                node.value = succsesor.value
                 if (succsesor.if_node_is_left_child()):
                     parent = succsesor.parent
                     parent.left = succsesor.right
@@ -420,13 +410,10 @@ class AVLTreeList(object):
                     parent.right = succsesor.right
                     succsesor.right.parent = parent
                 else:
-                    self.root = succsesor.right
+                    self.root.value = succsesor.right.value
                 if (node.value == self.root.value):
                     self.root.value = succsesor.value
-                node.value = succsesor.value
-                #self.FixHS(succsesor)
-                #rotations = self.CheckInsertion(node)
-                return 0
+                return self.help_tree(parent)
 
 
 
@@ -825,12 +812,8 @@ class AVLTreeList(object):
             self.merge(arr,l, m, r)
         return arr
 
-for i in range(6):
-    t = AVLTreeList()
-    A = ["a","b","c","d","e","f"]
-    for key in A:
-        t.insert(A.index(key), key)
-    print(t.delete(i))
+
+
 
 
 
