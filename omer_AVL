@@ -354,6 +354,7 @@ class AVLTreeList(object):
             if(self.root.value==node.value):
                 self.root.value = node.left.value
                 node.left.replace_to_virtual()
+                return self.help_tree(self.root)
             elif (node.if_node_is_left_child()):
                 parent = node.parent
                 parent.left = node.left
@@ -362,6 +363,7 @@ class AVLTreeList(object):
                 parent.right = node.left
             else:
                 self.root.value=node.left.value
+                return self.help_tree(self.root)
             node.left.parent = parent
             return self.help_tree(parent)
         # only right child
@@ -369,6 +371,7 @@ class AVLTreeList(object):
             if (self.root.value == node.value):
                 self.root.value = node.right.value
                 node.right.replace_to_virtual()
+                return self.help_tree(self.root)
             elif (node.if_node_is_left_child()):
                 parent = node.parent
                 parent.left = node.right
@@ -377,7 +380,7 @@ class AVLTreeList(object):
                 parent.right = node.right
             else:
                 self.root.value=node.left.value
-            node.right.parent = parent
+                return self.help_tree(self.root)
             return self.help_tree(parent)
         # 2 children
         else:
@@ -397,6 +400,7 @@ class AVLTreeList(object):
                     self.root.replace_to_virtual()
                 if (node.value == self.root.value):
                     self.root.value = succsesor.value
+                    return self.help_tree(self.root)
                 return self.help_tree(parent)
             # sucssesor have right child
             else:
@@ -413,6 +417,7 @@ class AVLTreeList(object):
                     self.root.value = succsesor.right.value
                 if (node.value == self.root.value):
                     self.root.value = succsesor.value
+                    return self.help_tree(self.root)
                 return self.help_tree(parent)
 
 
@@ -811,5 +816,6 @@ class AVLTreeList(object):
             self.mergeSort(arr,m + 1, r)
             self.merge(arr,l, m, r)
         return arr
+
 
 
