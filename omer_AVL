@@ -3,7 +3,6 @@
 # name1    - Omer Palevitch
 # id2      - 207909409
 # name2    - elad shaba
-
 # Todo:
 # delete printtree and reper
 # delete auto generated tree
@@ -325,7 +324,8 @@ class AVLTreeList(object):
     # O(nlog n)
     def delete(self, i):
         if ((self.empty()) or ((self.size == 1) & (i == 0))):
-            return None
+            self.root=None
+            return 0
         self.size -= 1
         node = self.TreeSelect(i + 1)
         # if node is min, we take his secssesor
@@ -811,9 +811,5 @@ class AVLTreeList(object):
             self.mergeSort(arr,m + 1, r)
             self.merge(arr,l, m, r)
         return arr
-
-
-
-
 
 
