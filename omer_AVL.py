@@ -496,8 +496,8 @@ class AVLTreeList(object):
         self.ShuffleList(perm)  # O(n)
         shuffeldTree = AVLTreeList()
         shuffeldTree.root=shuffeldTree.BuildTree(perm, 0, len(perm) - 1)
-        shuffeldTree.min = AVLNode(perm[0])
-        shuffeldTree.max = AVLNode(perm[len(perm) - 1])
+        shuffeldTree.min = shuffeldTree.findMaxMin(False)#O(log n)-find rightmost
+        shuffeldTree.max = shuffeldTree.findMaxMin(True)#O(log n)-find leftmost
         shuffeldTree.size = shuffeldTree.root.size
         return shuffeldTree
 
@@ -535,11 +535,11 @@ class AVLTreeList(object):
                 lst = AVLTreeList()  # check what happens to self and lst
                 return hdiff
 
-        x = self.max.value
+        x = self.max
         self.delete(self.length() - 1)
         x.parent=None
         
-        if (self.heigt==lst.height): #same height, "simple" to connect
+        if (self.root.height==lst.root.height): #same height, "simple" to connect
             x.setLeft(self.root)
             self.root.parent=x
             x.setRight(lst.root)
@@ -548,11 +548,11 @@ class AVLTreeList(object):
             self.root = x
             
 
-        if (self.height > lst.height):
+        elif (self.root.height > lst.root.height):
             self.joinSmaller(x, lst)
             self.CheckInsertion(x)
             
-        else:
+        elif(self.root.height < lst.root.height):
             self.joinBigger(x, lst)
             self.CheckInsertion(x)
             
@@ -772,7 +772,10 @@ class AVLTreeList(object):
         
         # if right < left then we return a virtual node
         if right < left:
-            return AVLNode(None)
+            node = AVLNode(None)
+            node.height=-1
+            node.size=0
+            return node
         
         # create a node from the center of the list so that the tree will be most balanced
         mid = (left + right) // 2
@@ -849,6 +852,19 @@ class AVLTreeList(object):
             self.mergeSort(arr,m + 1, r)
             self.merge(arr,l, m, r)
         return arr
+
+    #O(log n)
+    def findMaxMin(self,Max=True):
+        node=self.root
+        if(Max):
+            while node.getRight().isRealNode():
+                node = node.getRight()
+            return node
+
+        else:
+            while node.getLeft().isRealNode():
+                node = node.getLeft()
+            return node
 
 
 
