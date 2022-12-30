@@ -6,11 +6,10 @@
 # Todo:
 # delete printtree and reper
 # delete auto generated tree
-# check to see that sizes and heights stay updated in big tree
 # try to insert a lot of elements to tree and confirm no problems
 # after delete check concat
 # arrange where each help function is
-# finish build Tree
+
 
 import random  ##check if allowed
 import printree
@@ -31,11 +30,7 @@ class AVLNode(object):
         self.right = None
         self.parent = None
         self.height = 0
-        if (value == None):  # virtual node
-            self.height = -1
-            self.size = 0
-        else:
-            self.size = 1
+        self.size = 1
 
     def __repr__(self):
         return "(" + str(self.value) + ")"
@@ -266,7 +261,11 @@ class AVLTreeList(object):
     # O(log n)
     def insert(self, i, val):
         Vnode1 = AVLNode(None)  # create virtual Node
+        Vnode1.height=-1
+        Vnode1.size=0
         Vnode2 = AVLNode(None)  # create virtual Node
+        Vnode2.height=-1
+        Vnode2.size=0
         Node = AVLNode(val)  # create Node to insert
         Node.setLeft(Vnode1)
         Node.setRight(Vnode2)
@@ -452,16 +451,17 @@ class AVLTreeList(object):
         arr = []
         self.inOrder(self.root, arr)
         return arr
-
+    
+   
     # travel the Tree inorder, add each element to the array
-    # O(1)
-    def inOrder(self, node, arr):
-        if (node is None or not node.isRealNode()):
+    #O(1)
+    def inOrder(self,node,arr):
+        if(node is None or not node.isRealNode()):
             return
-        self.inOrder(node.left, arr)
+        self.inOrder(node.left,arr)
         arr.append(node.value)
-        self.inOrder(node.right, arr)
-
+        self.inOrder(node.right,arr)
+                
     """returns the size of the list 
     @rtype: int
     @returns: the size of the list
@@ -495,8 +495,7 @@ class AVLTreeList(object):
         perm = self.listToArray()  # O(n)
         self.ShuffleList(perm)  # O(n)
         shuffeldTree = AVLTreeList()
-        i = 0
-        shuffeldTree.root = self.buildTreeFromList(perm, 0, len(perm) - 1)
+        shuffeldTree.root=shuffeldTree.BuildTree(perm, 0, len(perm) - 1)
         shuffeldTree.min = AVLNode(perm[0])
         shuffeldTree.max = AVLNode(perm[len(perm) - 1])
         shuffeldTree.size = shuffeldTree.root.size
@@ -512,17 +511,18 @@ class AVLTreeList(object):
     # O(log n) -> O(h2-h1+1) ?
     # check if work on lst.size==1 if not, just add as last element and rotate
     def concat(self, lst):
-
+        #First we will handle the case if one of the "lists" is empty
         if (self.size == 0):
             self = lst
-            lst = AVLTreeList()  # check what happens to self and lst
             return self.height
+        
         if (lst.size == 0):
             return self.height
 
-        hdiff = abs(self.root.height + 1 - lst.root.height)
+        hdiff = abs(self.root.height - lst.root.height)
 
-        if (lst.size == 1 or self.size == 1):  # we will sometimes be able to do the join on O(1) like so
+        #we will handle the simple case - if one of them is of length 1
+        if (lst.size == 1 or self.size == 1): 
             if (lst.size == 1):
                 self.insert(self.size, lst.root.value)
                 self.max = lst.root.value
@@ -537,25 +537,28 @@ class AVLTreeList(object):
 
         x = self.max.value
         self.delete(self.length() - 1)
-        if (hdiff <= 1):
+        x.parent=None
+        
+        if (self.heigt==lst.height): #same height, "simple" to connect
             x.setLeft(self.root)
+            self.root.parent=x
             x.setRight(lst.root)
-            self.max = lst.max
+            lst.root.parent=x
+            self.FixHS(x)
             self.root = x
-            self.size = self.size + 1 + lst.size
-            lst = AVLTreeList()  # check what happens to self and lst
+            
 
         if (self.height > lst.height):
             self.joinSmaller(x, lst)
-            self.CheckInsertion(x, True)
-            # do rotations needed
-
-
+            self.CheckInsertion(x)
+            
         else:
             self.joinBigger(x, lst)
-            self.CheckInsertion(x, True)
-            # do rotations needed
-
+            self.CheckInsertion(x)
+            
+        self.max = lst.max
+        self.size = self.size + 1 + lst.size
+        lst = AVLTreeList()
         return hdiff
 
     """searches for a *value* in the list
@@ -727,38 +730,68 @@ class AVLTreeList(object):
         return lst
 
     # O(log n)
-    def findFirstH(self, h):
+    def findOnLeftFirstH(self, h):
         node = self.root
         while (node.height > h):
             node = node.left
         return node
 
+     # O(log n)
+    def findOnRightFirstH(self, h):
+        node = self.root
+        while (node.height > h):
+            node = node.right
+        return node
+
+     # O(log n)
+    def joinSmaller(T1, x, T2):  # self is bigger --> T1<x<T2 and |T1|>|T2|
+        Connect = T1.findOnRightFirstH(T2.root.height)
+        x.setLeft(Connect)
+        x.setRight(T2.root)
+        T1.max = T2.max
+        T1.size = T1.size + 1 + T2.size
+        x.setParent(Connect.parent)
+        Connect.parent = x
+        T2 = AVLTreeList()  # check what happens to self and lst
+    
     # # O(log n)
-    # def joinSmaller(T1, x, T2):  # self is bigger
-    #     Connect = T1.findFirstH(T2.root.height)
-    #     x.setLeft(Connect)
-    #     x.setRight(T2.root)
-    #     T1.max = T2.max
-    #     T1.size = self.size + 1 + lst.size
-    #     x.setParent(Connect.parent)
-    #     Connect.parent = x
-    #     T2 = AVLTreeList()  # check what happens to self and lst
-    #
-    # # O(log n)
-    # def joinBigger(T1, x, T2):  ##self is smaller
-    #     Connect = T2.findFirstH(T1.root.height)
-    #     x.setLeft(T1.root)
-    #     x.setRight(Connect)
-    #     T1.max = T2.max
-    #     T1.size = self.size + 1 + lst.size
-    #     x.setParent(Connect.parent)
-    #     Connect.parent = x
-    #     T2 = AVLTreeList()  # check what happens to self and lst
+    def joinBigger(T1, x, T2):  ##self is smaller--> T1<x<T2 and |T1|<|T2|
+        Connect = T2.findOnLeftFirstH(T1.root.height)
+        x.setLeft(T1.root)
+        x.setRight(Connect)
+        T1.max = T2.max
+        T1.size = self.size + 1 + lst.size
+        x.setParent(Connect.parent)
+        Connect.parent = x
+        T2 = AVLTreeList()  # check what happens to self and lst
 
     # O(n)
     # we will build as we saw in the rec
+
     def BuildTree(self, lst, left, right):
-        pass
+        
+        # if right < left then we return a virtual node
+        if right < left:
+            return AVLNode(None)
+        
+        # create a node from the center of the list so that the tree will be most balanced
+        mid = (left + right) // 2
+        node = AVLNode(lst[mid])
+
+        # build left subtree of node
+        node.setLeft(self.BuildTree(lst, left, mid - 1))
+
+        # build right subtree of node
+        node.setRight(self.BuildTree(lst, mid + 1, right))
+
+        # fix height and size of node
+        self.FixHS(node)
+
+        # setting node as parent for left and right children
+        node.getRight().setParent(node)
+        node.getLeft().setParent(node)
+        return node
+        
     def merge(self,arr,l, m, r):
         n1 = m - l + 1
         n2 = r - m
