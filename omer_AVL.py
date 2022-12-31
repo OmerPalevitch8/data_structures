@@ -160,16 +160,15 @@ class AVLNode(object):
             node = self.right
             while (node.left.isRealNode()):
                 node = node.left
+        elif(self.getParent()==None):
+            return None
         else:
             node = self
-            while (node.parent.isRealNode()):
+            while (node.getParent()!=None):
                 node = node.parent
                 if (node.if_node_is_left_child):
                     break
-        if(node==self):
-            return None
-        else:
-            return node
+        return node
 
     # O(1)
     def if_node_is_left_child(self):
@@ -871,12 +870,14 @@ class AVLTreeList(object):
                 node = node.getLeft()
             return node
 
-
-t = AVLTreeList()
-t.insert(0,"b")
-t.insert(0,"c")
-t.delete(0)
-print(t.listToArray())
-t.insert(0,"c")
-print(t.min)
-print(t.TreeSelect(1))
+for j in range(1):
+    t = AVLTreeList()
+    A = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o"]
+    for i in range(len(A)):
+        t.insert(i,A[i])
+    i = len(A)-1
+    while(i>0):
+        x= random.randint(0,i)
+        t.delete(x)
+        i-=1
+        print(t.listToArray())
