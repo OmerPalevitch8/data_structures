@@ -9,8 +9,7 @@
 # try to insert a lot of elements to tree and confirm no problems
 # after delete check concat
 # arrange where each help function is
-
-
+import math
 import random
 import printree
 from printree import *
@@ -354,74 +353,80 @@ class AVLTreeList(object):
             return self.help_tree(parent)
         # only left child
         elif ((node.left.isRealNode() != False) & (node.right.isRealNode() == False)):
-            if (self.root.value == node.value):
+            if (node.getParent()==None):
                 self.root.value = node.left.value
                 node.left= node.replace_to_virtual()
                 return self.help_tree(self.root)
             elif (node.if_node_is_left_child()):
                 parent = node.parent
                 parent.left = node.left
+                node.left.parent = parent
+                parent.left.parent = parent
+                return self.help_tree(parent)
             elif (node.if_node_is_right_child()):
                 parent = node.parent
                 parent.right = node.left
-            else:
-                self.root.value = node.left.value
-                return self.help_tree(self.root)
-            node.left.parent = parent
-            return self.help_tree(parent)
+                node.left.parent = parent
+                parent.right.parent = parent
+                return self.help_tree(parent)
         # only right child
         elif ((node.left.isRealNode() == False) & (node.right.isRealNode() != False)):
-            if (self.root.value == node.value):
+            if (node.getParent()==None):
                 self.root.value = node.right.value
                 node.right= node.replace_to_virtual()
                 return self.help_tree(self.root)
             elif (node.if_node_is_left_child()):
                 parent = node.parent
                 parent.left = node.right
+                parent.left.parent = parent
+                return self.help_tree(parent)
             elif (node.if_node_is_right_child()):
                 parent = node.parent
                 parent.right = node.right
-            else:
-                self.root.value = node.left.value
-                return self.help_tree(self.root)
-            return self.help_tree(parent)
+                parent.right.parent = parent
+                return self.help_tree(parent)
         # 2 children
         else:
             # we will replace with succsesor, who is leaf or have right child (left is not possible)
             succsesor = node.succsesor()
+            if(succsesor==None):
+                return 0
 
             # sucssesor is a leaf
             if ((succsesor.left.isRealNode() == False) & (succsesor.right.isRealNode() == False)):
-                node.value = succsesor.value
                 if (succsesor.if_node_is_left_child()):
+                    node.value = succsesor.value
                     parent = succsesor.parent
                     parent.left = node.replace_to_virtual()
+                    parent.left.parent = node.replace_to_virtual()
+                    return self.help_tree(parent)
                 elif (succsesor.if_node_is_right_child()):
+                    node.value = succsesor.value
                     parent = succsesor.parent
                     parent.right = node.replace_to_virtual()
-                else:
-                    self.root.replace_to_virtual()
-                if (node.value == self.root.value):
-                    self.root.value = succsesor.value
-                    return self.help_tree(self.root)
-                return self.help_tree(parent)
+                    parent.right.parent = node.replace_to_virtual()
+                    return self.help_tree(parent)
+                elif(succsesor.getParent()==None):
+                    return None
             # sucssesor have right child
             else:
-                node.value = succsesor.value
                 if (succsesor.if_node_is_left_child()):
+                    node.value = succsesor.value
                     parent = succsesor.parent
                     parent.left = succsesor.right
                     succsesor.right.parent = parent
+                    return self.help_tree(parent)
                 elif (succsesor.if_node_is_right_child()):
+                    node.value = succsesor.value
                     parent = succsesor.parent
                     parent.right = succsesor.right
                     succsesor.right.parent = parent
-                else:
+                    return self.help_tree(parent)
+                elif((succsesor.getParent()==None)):
                     self.root.value = succsesor.right.value
-                if (node.value == self.root.value):
-                    self.root.value = succsesor.value
+                    node.value = succsesor.value
                     return self.help_tree(self.root)
-                return self.help_tree(parent)
+
 
     """returns the value of the first item in the list
     @rtype: str
@@ -870,14 +875,4 @@ class AVLTreeList(object):
                 node = node.getLeft()
             return node
 
-for j in range(1):
-    t = AVLTreeList()
-    A = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o"]
-    for i in range(len(A)):
-        t.insert(i,A[i])
-    i = len(A)-1
-    while(i>0):
-        x= random.randint(0,i)
-        t.delete(x)
-        i-=1
-        print(t.listToArray())
+
