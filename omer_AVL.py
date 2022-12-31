@@ -192,7 +192,7 @@ class AVLNode(object):
             return True
         else:
             return False
-
+    # O(1)
     def replace_to_virtual(self):
         node = AVLNode(None)
         node.size = 0
@@ -325,7 +325,7 @@ class AVLTreeList(object):
         rotations = self.CheckInsertion(node)
         return rotations
 
-    # O(nlog n)
+    # O(log n)
     def delete(self, i):
         if ((self.empty()) or ((self.size == 1) & (i == 0))):
             self.root = None
@@ -797,6 +797,8 @@ class AVLTreeList(object):
         node.getLeft().setParent(node)
         return node
 
+    #helper for mergesort
+    # O(n log n)
     def merge(self, arr, l, m, r):
         n1 = m - l + 1
         n2 = r - m
@@ -843,6 +845,7 @@ class AVLTreeList(object):
     # l is for left index and r is right index of the
     # sub-array of arr to be sorted
 
+    # O(n log n)
     def mergeSort(self, arr, l, r):
         if l < r:
             # Same as (l+r)//2, but avoids overflow for
@@ -869,3 +872,11 @@ class AVLTreeList(object):
             return node
 
 
+t = AVLTreeList()
+t.insert(0,"b")
+t.insert(0,"c")
+t.delete(0)
+print(t.listToArray())
+t.insert(0,"c")
+print(t.min)
+print(t.TreeSelect(1))
