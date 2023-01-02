@@ -15,7 +15,7 @@ def trepr(t, bykey = False):
         if t==None:
                 return ["#"]
 
-        thistr = str(t.value)
+        thistr = str(t.value)+"s:"+str(t.size)
 
         return conc(trepr(t.left,bykey), thistr, trepr(t.right,bykey))
 

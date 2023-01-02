@@ -32,7 +32,7 @@ class AVLNode(object):
         self.size = 1
 
     def __repr__(self):
-        return "(" + str(self.value) + ")"
+        return "(" + str(self.value)+"size"+str(self.size) + ")"
 
     """returns the left child
     @rtype: AVLNode
@@ -263,12 +263,8 @@ class AVLTreeList(object):
 
     # O(log n)
     def insert(self, i, val):
-        Vnode1 = AVLNode(None)  # create virtual Node
-        Vnode1.height = -1
-        Vnode1.size = 0
-        Vnode2 = AVLNode(None)  # create virtual Node
-        Vnode2.height = -1
-        Vnode2.size = 0
+        Vnode1 = AVLNode("intalizing").replace_to_virtual()  # create virtual Node
+        Vnode2 = AVLNode("intalizing").replace_to_virtual()  # create virtual Node
         Node = AVLNode(val)  # create Node to insert
         Node.setLeft(Vnode1)
         Node.setRight(Vnode2)
@@ -307,6 +303,7 @@ class AVLTreeList(object):
 
         self.FixHS(Node)
         rotations = self.CheckInsertion(Node)
+        self.FixHS(self.root)
         self.size += 1
         return rotations
 
@@ -611,7 +608,7 @@ class AVLTreeList(object):
         return self.TreeSelectRec(self.root, k)
 
     def TreeSelectRec(self, x, k):
-        r = x.left.size + 1
+        r = x.getLeft().getSize() + 1
         if (k == r):
             return x
         if (k < r):
@@ -624,6 +621,7 @@ class AVLTreeList(object):
     def CheckInsertion(self, curr):
         rotations = 0
         while curr is not None and curr.isRealNode():
+            
             self.FixHS(curr)  # fix height and size of the nodes
             bal = curr.getbalance()
 
@@ -652,7 +650,9 @@ class AVLTreeList(object):
                     self.rightRotate(curr)
                     self.FixHS(curr)
                     rotations += 2
+            
             curr = curr.parent
+        
         return rotations
 
     #             left Rotate:
@@ -721,6 +721,10 @@ class AVLTreeList(object):
 
     # O(log n)
     def FixHS(self, node):
+        if(not node.isRealNode()):
+            node.height=-1
+            node.size=0
+            return
         node.height = 1 + max(node.left.height, node.right.height)
         node.size = node.left.size + node.right.size + 1
 
@@ -874,5 +878,15 @@ class AVLTreeList(object):
             while node.getLeft().isRealNode():
                 node = node.getLeft()
             return node
-
+t=AVLTreeList()
+t.insert(0,"root")
+while True:
+    t=AVLTreeList()
+    t.insert(0,"root")
+    arr=[0]
+    for i in range(8):
+        index=random.randint(0,t.size)
+        arr.append(index)
+        t.insert(index,(str)(i))
+    
 
