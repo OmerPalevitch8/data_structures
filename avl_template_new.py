@@ -352,9 +352,9 @@ class AVLTreeList(object):
         elif ((node.left.isRealNode() != False) & (node.right.isRealNode() == False)):
             if (node.getParent() == None):
                 self.root = node.left
-                node.left.parent = node.replace_to_virtual()
+                node.left.parent = None
                 node.left = node.replace_to_virtual()
-                self.root.parent = node.replace_to_virtual()
+                self.root.parent = None
                 return self.help_tree(self.root)
             elif (node.if_node_is_left_child()):
                 parent = node.parent
@@ -372,9 +372,9 @@ class AVLTreeList(object):
         elif ((node.left.isRealNode() == False) & (node.right.isRealNode() != False)):
             if (node.getParent() == None):
                 self.root = node.right
-                node.right.parent = node.replace_to_virtual()
+                node.right.parent = None
                 node.right = node.replace_to_virtual()
-                self.root.parent = node.replace_to_virtual()
+                self.root.parent = None
                 return self.help_tree(self.root)
             elif (node.if_node_is_left_child()):
                 parent = node.parent
@@ -396,12 +396,10 @@ class AVLTreeList(object):
             # sucssesor is a leaf
             if ((succsesor.left.isRealNode() == False) & (succsesor.right.isRealNode() == False)):
                 if (succsesor.if_node_is_left_child()):
-                    print(self)
                     node.value = succsesor.value
                     parent = succsesor.parent
                     parent.left = node.replace_to_virtual()
                     parent.left.parent = node.replace_to_virtual()
-                    print(self)
                     return self.help_tree(parent)
                 elif (succsesor.if_node_is_right_child()):
                     node.value = succsesor.value
@@ -426,9 +424,12 @@ class AVLTreeList(object):
                     succsesor.right.parent = parent
                     return self.help_tree(parent)
                 elif ((succsesor.getParent() == None)):
-                    self.root.value = succsesor.right.value
-                    node.value = succsesor.value
+                    self.root = succsesor.right
+                    succsesor.right.parent = None
+                    succsesor.right = node.replace_to_virtual()
+                    self.root.parent = None
                     return self.help_tree(self.root)
+
 
     """returns the value of the first item in the list
     @rtype: str
@@ -879,20 +880,20 @@ class AVLTreeList(object):
         return self.root.height
 
 
-T = AVLTreeList()
-L = []
-
-for i in range(20):
-    if i % 3 == 0:
-        T.insert(T.length()//2, i)
-        x= T.listToArray()
-        print(T.listToArray())
-        L.insert(len(L)//2, i)
-    elif i % 3 == 1:
-        T.insert(0, i)
-        x = T.listToArray()
-        print(T.listToArray())
-        L.insert(0, i)
-    else:
-        T.delete(T.length()//2)
-        L.pop(len(L)//2)
+# T = AVLTreeList()
+# L = []
+#
+# for i in range(20):
+#     if i % 3 == 0:
+#         T.insert(T.length()//2, i)
+#         x= T.listToArray()
+#         print(T.listToArray())
+#         L.insert(len(L)//2, i)
+#     elif i % 3 == 1:
+#         T.insert(0, i)
+#         x = T.listToArray()
+#         print(T.listToArray())
+#         L.insert(0, i)
+#     else:
+#         T.delete(T.length()//2)
+#         L.pop(len(L)//2)
