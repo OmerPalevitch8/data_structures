@@ -328,10 +328,10 @@ class AVLTreeList(object):
         self.size -= 1
         node = self.TreeSelect(i + 1)
         # if node is min, we take his secssesor
-        if (self.min.value == node.value):
+        if (self.min == node):
             self.min = node.succsesor()
         # if node is max, we find the next max
-        if (self.max.value == node.value):
+        if (self.max == node):
             if (node.left.isRealNode() == False):
                 self.max = node.parent
             else:
@@ -351,8 +351,10 @@ class AVLTreeList(object):
         # only left child
         elif ((node.left.isRealNode() != False) & (node.right.isRealNode() == False)):
             if (node.getParent() == None):
-                self.root.value = node.left.value
+                self.root = node.left
+                node.left.parent = node.replace_to_virtual()
                 node.left = node.replace_to_virtual()
+                self.root.parent = node.replace_to_virtual()
                 return self.help_tree(self.root)
             elif (node.if_node_is_left_child()):
                 parent = node.parent
@@ -369,8 +371,10 @@ class AVLTreeList(object):
         # only right child
         elif ((node.left.isRealNode() == False) & (node.right.isRealNode() != False)):
             if (node.getParent() == None):
-                self.root.value = node.right.value
+                self.root = node.right
+                node.right.parent = node.replace_to_virtual()
                 node.right = node.replace_to_virtual()
+                self.root.parent = node.replace_to_virtual()
                 return self.help_tree(self.root)
             elif (node.if_node_is_left_child()):
                 parent = node.parent
@@ -392,10 +396,12 @@ class AVLTreeList(object):
             # sucssesor is a leaf
             if ((succsesor.left.isRealNode() == False) & (succsesor.right.isRealNode() == False)):
                 if (succsesor.if_node_is_left_child()):
+                    print(self)
                     node.value = succsesor.value
                     parent = succsesor.parent
                     parent.left = node.replace_to_virtual()
                     parent.left.parent = node.replace_to_virtual()
+                    print(self)
                     return self.help_tree(parent)
                 elif (succsesor.if_node_is_right_child()):
                     node.value = succsesor.value
@@ -514,12 +520,7 @@ class AVLTreeList(object):
     def concat(self, lst):
         # First we will handle the case if one of the "lists" is empty
         if (self.size == 0):
-            if (lst.size == 0):
-                return 0
-            self.root = lst.root
-            self.max=lst.max
-            self.min=lst.min
-            self.size=lst.size
+            self = lst
             return self.root.height
 
         if (lst.size == 0):
@@ -531,13 +532,12 @@ class AVLTreeList(object):
         if (lst.size == 1 or self.size == 1):
             if (lst.size == 1):
                 self.insert(self.size, lst.root.value)
-                self.max = lst.root
+                self.max = lst.root.value
                 return hdiff
             if (self.size == 1):
                 lst.insert(0, self.root.value)
-                self.max = lst.max
-                self.root = lst.root
-                self.size=lst.size
+                lst.min = self.root.value
+                self = lst
                 return hdiff
 
         x = self.max
@@ -876,17 +876,23 @@ class AVLTreeList(object):
         self.insert(self.length(), val)
 
     def getTreeHeight(self):
-        if(self.empty()):
-            return 0
         return self.root.height
 
-T3 = AVLTreeList()
-T4 = AVLTreeList()
-L3 = list()
-L4 = list()
-for i in range(3):
-    T4.append(i)
-    L4.append(i)
-for i in range(1):
-    T3.append(i)
-    L3.append(i)
+
+T = AVLTreeList()
+L = []
+
+for i in range(20):
+    if i % 3 == 0:
+        T.insert(T.length()//2, i)
+        x= T.listToArray()
+        print(T.listToArray())
+        L.insert(len(L)//2, i)
+    elif i % 3 == 1:
+        T.insert(0, i)
+        x = T.listToArray()
+        print(T.listToArray())
+        L.insert(0, i)
+    else:
+        T.delete(T.length()//2)
+        L.pop(len(L)//2)
