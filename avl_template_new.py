@@ -514,7 +514,12 @@ class AVLTreeList(object):
     def concat(self, lst):
         # First we will handle the case if one of the "lists" is empty
         if (self.size == 0):
-            self = lst
+            if (lst.size == 0):
+                return 0
+            self.root = lst.root
+            self.max=lst.max
+            self.min=lst.min
+            self.size=lst.size
             return self.root.height
 
         if (lst.size == 0):
@@ -526,12 +531,13 @@ class AVLTreeList(object):
         if (lst.size == 1 or self.size == 1):
             if (lst.size == 1):
                 self.insert(self.size, lst.root.value)
-                self.max = lst.root.value
+                self.max = lst.root
                 return hdiff
             if (self.size == 1):
                 lst.insert(0, self.root.value)
-                lst.min = self.root.value
-                self = lst
+                self.max = lst.max
+                self.root = lst.root
+                self.size=lst.size
                 return hdiff
 
         x = self.max
@@ -870,6 +876,17 @@ class AVLTreeList(object):
         self.insert(self.length(), val)
 
     def getTreeHeight(self):
+        if(self.empty()):
+            return 0
         return self.root.height
 
-
+T3 = AVLTreeList()
+T4 = AVLTreeList()
+L3 = list()
+L4 = list()
+for i in range(3):
+    T4.append(i)
+    L4.append(i)
+for i in range(1):
+    T3.append(i)
+    L3.append(i)
