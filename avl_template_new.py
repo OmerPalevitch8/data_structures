@@ -330,15 +330,24 @@ class AVLTreeList(object):
         # if node is min, we take his secssesor
         if (self.min == node):
             self.min = node.succsesor()
+            self.min.value= node.succsesor().value
+            self.min.size = node.succsesor().size
+            self.min.height = node.succsesor().height
         # if node is max, we find the next max
         if (self.max == node):
             if (node.left.isRealNode() == False):
                 self.max = node.parent
+                self.max.value = node.parent.value
+                self.max.size = node.parent.size
+                self.max.height = node.parent.height
             else:
                 node_2 = node.getLeft()
                 while (node_2.right.isRealNode() == True):
                     node_2 = node_2.getRight()
-                self.max = node_2
+                self.max=node_2
+                self.max.value = node_2.value
+                self.max.size = node_2.size
+                self.max.height = node_2.height
         # check if leaf
         if ((node.left.isRealNode() == False) & (node.right.isRealNode() == False)):
             if (node.if_node_is_left_child()):
@@ -392,36 +401,64 @@ class AVLTreeList(object):
             succsesor = node.succsesor()
             if (succsesor == None):
                 return 0
+            if(self.min==succsesor):
+                self.min = succsesor.succsesor()
+                self.min.value = succsesor.succsesor().value
+                self.min.size = succsesor.succsesor().size
+                self.min.height = succsesor.succsesor().height
+            if (self.max == succsesor):
+                if (succsesor.left.isRealNode() == False):
+                    self.max = succsesor.parent
+                    self.max.value = succsesor.parent.value
+                    self.max.size = succsesor.parent.size
+                    self.max.height = succsesor.parent.height
+                else:
+                    node_2 = succsesor.getLeft()
+                    while (node_2.right.isRealNode() == True):
+                        node_2 = node_2.getRight()
+                    self.max = node_2
+                    self.max.value = node_2.value
+                    self.max.size = node_2.size
+                    self.max.height = node_2.height
+
 
             # sucssesor is a leaf
             if ((succsesor.left.isRealNode() == False) & (succsesor.right.isRealNode() == False)):
                 if (succsesor.if_node_is_left_child()):
-                    node.value = succsesor.value
                     parent = succsesor.parent
                     parent.left = node.replace_to_virtual()
-                    parent.left.parent = node.replace_to_virtual()
+                    node.value = succsesor.value
+                    node.size = succsesor.size
+                    node.height = succsesor.height
                     return self.help_tree(parent)
                 elif (succsesor.if_node_is_right_child()):
-                    node.value = succsesor.value
                     parent = succsesor.parent
                     parent.right = node.replace_to_virtual()
-                    parent.right.parent = node.replace_to_virtual()
+                    node.right = node.replace_to_virtual()
+                    node.right.parent = None
+                    node.value = succsesor.value
+                    node.size = succsesor.size
+                    node.height = succsesor.height
                     return self.help_tree(parent)
                 elif (succsesor.getParent() == None):
                     return None
             # sucssesor have right child
             else:
                 if (succsesor.if_node_is_left_child()):
-                    node.value = succsesor.value
                     parent = succsesor.parent
                     parent.left = succsesor.right
                     succsesor.right.parent = parent
+                    node.value = succsesor.value
+                    node.size = succsesor.size
+                    node.height = succsesor.height
                     return self.help_tree(parent)
                 elif (succsesor.if_node_is_right_child()):
-                    node.value = succsesor.value
                     parent = succsesor.parent
                     parent.right = succsesor.right
                     succsesor.right.parent = parent
+                    node.value = succsesor.value
+                    node.size = succsesor.size
+                    node.height = succsesor.height
                     return self.help_tree(parent)
                 elif ((succsesor.getParent() == None)):
                     self.root = succsesor.right
@@ -521,7 +558,12 @@ class AVLTreeList(object):
     def concat(self, lst):
         # First we will handle the case if one of the "lists" is empty
         if (self.size == 0):
-            self = lst
+            if (lst.size == 0):
+                return 0
+            self.root = lst.root
+            self.max = lst.max
+            self.min = lst.min
+            self.size = lst.size
             return self.root.height
 
         if (lst.size == 0):
@@ -533,12 +575,13 @@ class AVLTreeList(object):
         if (lst.size == 1 or self.size == 1):
             if (lst.size == 1):
                 self.insert(self.size, lst.root.value)
-                self.max = lst.root.value
+                self.max = lst.root
                 return hdiff
             if (self.size == 1):
                 lst.insert(0, self.root.value)
-                lst.min = self.root.value
-                self = lst
+                self.max = lst.max
+                self.root = lst.root
+                self.size = lst.size
                 return hdiff
 
         x = self.max
@@ -590,6 +633,8 @@ class AVLTreeList(object):
 
     # O(1)
     def getRoot(self):
+        if(self.root==None):
+            return None
         return self.root
 
     # help functions:
@@ -877,23 +922,9 @@ class AVLTreeList(object):
         self.insert(self.length(), val)
 
     def getTreeHeight(self):
+        if (self.empty()):
+            return 0
         return self.root.height
 
 
-# T = AVLTreeList()
-# L = []
-#
-# for i in range(20):
-#     if i % 3 == 0:
-#         T.insert(T.length()//2, i)
-#         x= T.listToArray()
-#         print(T.listToArray())
-#         L.insert(len(L)//2, i)
-#     elif i % 3 == 1:
-#         T.insert(0, i)
-#         x = T.listToArray()
-#         print(T.listToArray())
-#         L.insert(0, i)
-#     else:
-#         T.delete(T.length()//2)
-#         L.pop(len(L)//2)
+
